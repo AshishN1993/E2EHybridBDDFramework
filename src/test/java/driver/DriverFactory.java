@@ -34,10 +34,10 @@ public class DriverFactory {
                 break;
             case "chrome":
             default:
-                WebDriverManager.chromedriver().setup();
-                ChromeOptions options = new ChromeOptions();
+                WebDriverManager.chromedriver ().setup ();
+               ChromeOptions options = new ChromeOptions();
                 options.addArguments("--start-maximized");
-                driver = new ChromeDriver(options);
+                driver = new ChromeDriver ();
         }
         tlDriver.set(driver);
     }
