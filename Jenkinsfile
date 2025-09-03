@@ -19,7 +19,7 @@ pipeline {
                 script {
                     def browsers = params.CROSS_BROWSER ? params.BROWSERS : params.BROWSER
                     def parallelFlag = params.PARALLEL ? 'true' : 'false'
-                    def parallelMode = params.PARALLEL ? 'methods' : ''
+                    def surefireParallel = params.PARALLEL ? "-Dsurefire.parallel=methods -Dsurefire.threadCount=${params.THREADS}" : ""
 
                     bat """
                         mvn clean test ^

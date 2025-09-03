@@ -15,7 +15,7 @@ public class DriverFactory {
 
     public static void initDriver() {
         String browserFromJenkins = System.getProperty("browser", "chrome");
-        String crossBrowser = System.getProperty("crossBrowser", "false");
+        String crossBrowser = System.getProperty("crossBrowser", "true");
 
 
 // If crossBrowser contains comma separated browsers, framework can be extended to iterate. For simplicity, pick first when not cross.
