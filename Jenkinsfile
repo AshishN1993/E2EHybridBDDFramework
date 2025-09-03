@@ -17,26 +17,39 @@ pipeline {
         stage('Build & Test') {
             steps {
                 script {
-                    def browsers = params.CROSS_BROWSER ? params.BROWSERS : params.BROWSER
-                    def parallelFlag = params.PARALLEL ? "true" : "false"
+                    if (params.CROSS_BROWSER) {
+                        // split browsers into a map for Jenkins parallel
+                        def browserList = params.BROWSERS.split(",")
+                        def parallelStages = [:]
 
-                    // only set surefire parallel options if PARALLEL = true
-                    def surefireOptions = params.PARALLEL ? "-Dsurefire.parallel=methods -Dsurefire.threadCount=${params.THREADS}" : ""
-
-                    bat """
-                        mvn clean test ^
-                        -Dbrowser=${browsers} ^
-                        -Denv=${params.ENV} ^
-                        -DcrossBrowser=${params.CROSS_BROWSER} ^
-                        -Dparallel=${parallelFlag} ^
-                        ${surefireOptions}
-                    """
+                        browserList.each { b ->
+                            parallelStages["Run on ${b.trim()}"] = {
+                                bat """
+                                    mvn clean test ^
+                                    -Dbrowser=${b.trim()} ^
+                                    -Denv=${params.ENV} ^
+                                    -Dparallel=${params.PARALLEL} ^
+                                    -Dthreads=${params.THREADS}
+                                """
+                            }
+                        }
+                        parallel parallelStages
+                    } else {
+                        // single browser
+                        bat """
+                            mvn clean test ^
+                            -Dbrowser=${params.BROWSER} ^
+                            -Denv=${params.ENV} ^
+                            -Dparallel=${params.PARALLEL} ^
+                            -Dthreads=${params.THREADS}
+                        """
+                    }
                 }
             }
         }
         stage('Archive Reports') {
             steps {
-                junit '**/target/surefire-reports/*.xml' // optional
+                junit '**/target/surefire-reports/*.xml'
                 archiveArtifacts artifacts: 'target/extent-report/**', allowEmptyArchive: true
             }
         }
