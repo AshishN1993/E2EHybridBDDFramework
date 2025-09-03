@@ -18,8 +18,10 @@ pipeline {
             steps {
                 script {
                     def browsers = params.CROSS_BROWSER ? params.BROWSERS : params.BROWSER
-                    def parallelFlag = params.PARALLEL ? 'true' : 'false'
-                    def surefireParallel = params.PARALLEL ? "-Dsurefire.parallel=methods -Dsurefire.threadCount=${params.THREADS}" : ""
+                    def parallelFlag = params.PARALLEL ? "true" : "false"
+
+                    // only set surefire parallel options if PARALLEL = true
+                    def surefireOptions = params.PARALLEL ? "-Dsurefire.parallel=methods -Dsurefire.threadCount=${params.THREADS}" : ""
 
                     bat """
                         mvn clean test ^
@@ -27,8 +29,7 @@ pipeline {
                         -Denv=${params.ENV} ^
                         -DcrossBrowser=${params.CROSS_BROWSER} ^
                         -Dparallel=${parallelFlag} ^
-                        -Dsurefire.threadCount=${params.THREADS} ^
-                        -Dsurefire.parallel=${parallelMode}
+                        ${surefireOptions}
                     """
                 }
             }
